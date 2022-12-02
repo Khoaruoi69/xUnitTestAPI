@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.AspNetCore.Mvc;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +69,7 @@ namespace UnitTestProject
 
             //assert
             Assert.NotNull(productResult);
-            Assert.Equal(GetProductsData().Count(), productResult.Count()); // so sánh banwgfnhau 2 phần tửu có cùng TYPE 
+            Assert.Equal(GetProductsData().Count(), productResult.Count()); 
             Assert.Equal(GetProductsData().ToString(), productResult.ToString());
             Assert.True(productList.Equals(productResult)); 
         }
@@ -90,6 +91,7 @@ namespace UnitTestProject
             Assert.Equal(productList[1].ProductId, productResult.ProductId);
             Assert.True(productList[1].ProductId == productResult.ProductId);
         }
+
 
         [Theory]
         [InlineData("IPhone")]
@@ -141,10 +143,25 @@ namespace UnitTestProject
 
             //act
             var productResult = productController.DeleteProduct(2);
-
             //assert
             Assert.NotNull(productResult);
             Assert.True(productResult.Equals(true));
+        }
+
+        [Fact]
+        public void DeleteProduct_Product_ReturnFalse()
+        {
+            //arrange
+            var productList = GetProductsData();
+            productService.Setup(x => x.DeleteProduct(20))
+                .Returns(true);
+            var productController = new ProductController(productService.Object);
+
+            //act
+            var productResult = productController.DeleteProduct(2);
+            //assert
+            Assert.NotNull(productResult);
+            Assert.True(productResult.Equals(false));
         }
 
         [Fact]
@@ -152,16 +169,17 @@ namespace UnitTestProject
         {
             //arrange
             var productList = GetProductsData();
-            productService.Setup(x => x.DeleteProduct(2))
-                .Returns(true);
+            productService.Setup(x => x.UpdateProduct(productList[2]))
+                .Returns(productList[2]);
             var productController = new ProductController(productService.Object);
 
             //act
-            var productResult = productController.DeleteProduct(2);
+            var productResult = productController.UpdateProduct(productList[2]);
 
             //assert
             Assert.NotNull(productResult);
-            Assert.True(productResult.Equals(true));
+            Assert.Equal(productList[2].ProductId, productResult.ProductId);
+            Assert.True(productList[2].ProductId == productResult.ProductId);
         }
 
 
